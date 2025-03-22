@@ -5,50 +5,43 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/fmantinossi/weather-app/internal/domain"
 )
 
-type WeatherResponse struct {
-	Location struct {
-		Name    string  `json:"name"`
-		Region  string  `json:"region"`
-		Country string  `json:"country"`
-		Lat     float64 `json:"lat"`
-		Lon     float64 `json:"lon"`
-	} `json:"location"`
-	Current struct {
-		TempC     float64 `json:"temp_c"`
-		TempF     float64 `json:"temp_f"`
-		Condition struct {
-			Text string `json:"text"`
-			Icon string `json:"icon"`
-		} `json:"condition"`
-		Humidity int     `json:"humidity"`
-		WindKph  float64 `json:"wind_kph"`
-	} `json:"current"`
+// WeatherApiAdapter implementa domain.WeatherProvider
+type WeatherApiAdapter struct {
+	BaseURL string
+	Client  *http.Client
 }
 
-func NewWeatherApiAdapter() *WeatherResponse {
-	return &WeatherResponse{}
+func NewWeatherApiAdapter() *WeatherApiAdapter {
+	return &WeatherApiAdapter{
+		BaseURL: "https://api.weatherapi.com/v1",
+		Client: &http.Client{
+			Timeout: 10 * time.Second,
+		},
+	}
 }
 
-func (w *WeatherResponse) GetWeather(apiKey, lat, lon string) (*WeatherResponse, error) {
-	url := fmt.Sprintf("https://api.weatherapi.com/v1/current.json?key=%s&q=%s,%s", apiKey, lat, lon)
+// GetWeather busca informações climáticas via WeatherAPI
+func (w *WeatherApiAdapter) GetWeather(apiKey, lat, lon string) (*domain.WeatherResponse, error) {
+	url := fmt.Sprintf("%s/current.json?key=%s&q=%s,%s", w.BaseURL, apiKey, lat, lon)
 
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Get(url)
+	resp, err := w.Client.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("WeatherApi returns error: %v", err)
+		return nil, fmt.Errorf("weatherapi: erro na requisição: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("WeatherApi returns error: status %d", resp.StatusCode)
+		return nil, fmt.Errorf("weatherapi: status de erro %d", resp.StatusCode)
 	}
 
-	var weatherData WeatherResponse
-	if err := json.NewDecoder(resp.Body).Decode(&weatherData); err != nil {
-		return nil, fmt.Errorf("Error decoding WeatherApi JSON: %v", err)
+	var result domain.WeatherResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("weatherapi: erro ao decodificar JSON: %w", err)
 	}
 
-	return &weatherData, nil
+	return &result, nil
 }
