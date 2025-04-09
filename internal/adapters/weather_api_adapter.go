@@ -30,17 +30,17 @@ func (w *WeatherApiAdapter) GetWeather(apiKey, lat, lon string) (*domain.Weather
 
 	resp, err := w.Client.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("weatherapi: erro na requisição: %w", err)
+		return nil, fmt.Errorf("weatherapi: error in request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("weatherapi: status de erro %d", resp.StatusCode)
+		return nil, fmt.Errorf("weatherapi: error status code: %d", resp.StatusCode)
 	}
 
 	var result domain.WeatherResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("weatherapi: erro ao decodificar JSON: %w", err)
+		return nil, fmt.Errorf("weatherapi: error decoding JSON: %w", err)
 	}
 
 	return &result, nil

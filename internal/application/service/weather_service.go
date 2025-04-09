@@ -27,12 +27,12 @@ func NewWeatherService(
 func (s *WeatherService) GetWeather(cep string) (*domain.Wheater, error) {
 	address, err := s.addressProvider.GetAddress(cep)
 	if err != nil {
-		return nil, fmt.Errorf("erro ao buscar endereço: %w", err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	weather, err := s.weatherProvider.GetWeather(s.apiKey, address.Location.Coordinates.Latitude, address.Location.Coordinates.Longitude)
 	if err != nil {
-		return nil, fmt.Errorf("erro ao buscar clima: %w", err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	return &domain.Wheater{

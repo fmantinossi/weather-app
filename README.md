@@ -4,6 +4,36 @@ This is a simple and clean weather forecast API written in **Go**, following idi
 
 ---
 
+## Cloud Run URL
+To use the public URL hosted on Cloud Run - Service URL: https://weather-api-574418562183.us-central1.run.app
+
+For successful testing:
+```bash
+curl https://weather-api-574418562183.us-central1.run.app/weather/31340110
+```
+Response:
+```json
+{"celsius":28.1,"fahrenheit":82.6,"kelvin":301.1}
+```
+
+For a zip code that does not exist:
+```bash
+curl https://weather-api-574418562183.us-central1.run.app/weather/00000000
+```
+Response:
+```json
+{"message":"can not find zipcode"}
+```
+
+For invalid ZIP codes
+```bash
+curl https://weather-api-574418562183.us-central1.run.app/weather/0
+```
+Response:
+```json
+{"message":"invalid zipcode"}
+```
+
 ## Architecture Overview
 
 The project is structured with a **clean separation of concerns**, inspired by principles of **hexagonal/clean architecture**:
@@ -119,7 +149,7 @@ go test ./... -v
 
 ---
 
-## 🔍 Development Logic
+## Development Logic
 
 This API was designed with **testability, maintainability, and clarity** in mind:
 
@@ -129,15 +159,6 @@ This API was designed with **testability, maintainability, and clarity** in mind
 - **Handler**: Handles HTTP requests/responses and maps domain errors to status codes
 - **Router**: Defines clean routing using Gin
 - **Server**: Central point that wires everything and launches the app
-
----
-
-## 🚀 Next Features (WIP)
-
-- [ ] Add Swagger/OpenAPI documentation
-- [ ] Add middleware for CEP format validation
-- [ ] Add Redis caching for CEP lookups
-- [ ] Rate limiting via middleware
 
 ---
 

@@ -1,17 +1,18 @@
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24 AS builder
 
 WORKDIR /app
 
 COPY . .
 
-RUN go build -o app ./cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o app ./cmd/server/main.go
 
-FROM alpine:latest
+FROM debian:bullseye-slim
 
-WORKDIR /root/
+WORKDIR /
 
 COPY --from=builder /app/app .
-COPY .env .env
+
+RUN apt-get update && apt-get install -y ca-certificates && apt-get clean
 
 EXPOSE 8080
 

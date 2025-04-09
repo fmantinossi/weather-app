@@ -38,6 +38,8 @@ func (b *BrasilApiAdapter) GetAddress(cep string) (*domain.Address, error) {
 		return nil, domain.ErrNotFound
 	case http.StatusUnprocessableEntity:
 		return nil, domain.ErrUnprocessableEntity
+	case http.StatusBadRequest:
+		return nil, domain.ErrUnprocessableEntity
 	default:
 		return nil, fmt.Errorf("BrasilAPI unexpected status code: %d", resp.StatusCode)
 	}
